@@ -658,6 +658,18 @@ err_out:
 	return cfg;
 }
 
+// Segwit BEGIN
+void memrev(unsigned char *p, size_t len)
+{
+	unsigned char c, *q;
+	for (q = p + len - 1; p < q; p++, q--) {
+		c = *p;
+		*p = *q;
+		*q = c;
+	}
+}
+// Segwit END
+
 void bin2hex(char *s, const unsigned char *p, size_t len)
 {
 	for (size_t i = 0; i < len; i++)
@@ -2349,6 +2361,9 @@ void print_hash_tests(void)
 
 	bmwhash(&hash[0], &buf[0]);
 	printpfx("bmw", hash);
+	
+    branchtorturehash(&hash[0], &buf[0]);
+	printpfx("branchtort", hash);
 
 	c11hash(&hash[0], &buf[0]);
 	printpfx("c11", hash);

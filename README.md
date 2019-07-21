@@ -32,6 +32,7 @@ Algorithms
  * ✓ __blake2s__ (NevaCoin Blake2-S 256)
  * ✓ __blake2b__ (Not SIA one)
  * ✓ __bmw__ (Midnight [MDT] BMW-256)
+ * ✓ __branchtort__ (BranchTorture)
  * ✓ __cryptonight__ (Bytecoin [BCN], Monero [XMR])
  * ✓ __cryptonight-light__ (Aeon)
  * ✓ __decred__ (Blake256-14 [DCR])
