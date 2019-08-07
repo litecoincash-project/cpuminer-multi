@@ -166,7 +166,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="algo\branchtorture.c" />
+    <ClCompile Include="algo\minotaur.c" />
     <ClCompile Include="compat\getopt\getopt_long.c" />
     <ClCompile Include="compat\gettimeofday.c" />
     <ClCompile Include="compat\jansson\dump.c" />

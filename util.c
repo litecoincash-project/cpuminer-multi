@@ -2362,8 +2362,8 @@ void print_hash_tests(void)
 	bmwhash(&hash[0], &buf[0]);
 	printpfx("bmw", hash);
 	
-    branchtorturehash(&hash[0], &buf[0]);
-	printpfx("branchtort", hash);
+    minotaurhash(&hash[0], &buf[0]);
+	printpfx("minotaur", hash);
 
 	c11hash(&hash[0], &buf[0]);
 	printpfx("c11", hash);

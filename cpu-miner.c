@@ -90,8 +90,7 @@ enum algos {
 	ALGO_BLAKE2B,
 	ALGO_BLAKE2S,     /* Blake2s */
 	ALGO_BMW,         /* BMW 256 */
-    ALGO_BRANCHTORT,  /* BranchTorture (Ring) */
-	ALGO_C11,         /* C11 Chaincoin/Flaxcoin X11 variant */
+    ALGO_C11,         /* C11 Chaincoin/Flaxcoin X11 variant */
 	ALGO_CRYPTOLIGHT, /* cryptonight-light (Aeon) */
 	ALGO_CRYPTONIGHT, /* CryptoNight */
 	ALGO_DECRED,      /* Decred */
@@ -106,6 +105,7 @@ enum algos {
 	ALGO_LYRA2,       /* Lyra2RE */
 	ALGO_LYRA2REV2,   /* Lyra2REv2 */
 	ALGO_LYRA2V3,     /* Lyra2REv3 (Vertcoin) */
+    ALGO_MINOTAUR,    /* Minotaur (Ring) */
 	ALGO_MYR_GR,      /* Myriad Groestl */
 	ALGO_NIST5,       /* Nist5 */
 	ALGO_PENTABLAKE,  /* Pentablake */
@@ -159,7 +159,6 @@ static const char *algo_names[] = {
 	"blake2b",
 	"blake2s",
 	"bmw",
-	"branchtort",
 	"c11",
 	"cryptolight",
 	"cryptonight",
@@ -175,6 +174,7 @@ static const char *algo_names[] = {
 	"lyra2re",
 	"lyra2rev2",
 	"lyra2v3",
+	"minotaur",
 	"myr-gr",
 	"nist5",
 	"pentablake",
@@ -323,7 +323,6 @@ Options:\n\
                           blake2b      Blake2-B (512)\n\
                           blake2s      Blake2-S (256)\n\
                           bmw          BMW 256\n\
-                          branchtort   BranchTorture\n\
                           c11/flax     C11\n\
                           cryptolight  Cryptonight-light\n\
                           cryptonight  Monero\n\
@@ -341,6 +340,7 @@ Options:\n\
                           lyra2re      Lyra2RE\n\
                           lyra2rev2    Lyra2REv2\n\
                           lyra2v3      Lyra2REv3 (Vertcoin)\n\
+                          minotaur     Minotaur\n\
                           myr-gr       Myriad-Groestl\n\
                           neoscrypt    NeoScrypt(128, 2, 1)\n\
                           nist5        Nist5\n\
@@ -2382,8 +2382,8 @@ static void *miner_thread(void *userdata)
 		case ALGO_BMW:
 			rc = scanhash_bmw(thr_id, &work, max_nonce, &hashes_done);
 			break;
-		case ALGO_BRANCHTORT:
-			rc = scanhash_branchtorture(thr_id, &work, max_nonce, &hashes_done);
+		case ALGO_MINOTAUR:
+			rc = scanhash_minotaur(thr_id, &work, max_nonce, &hashes_done);
 			break;            
 		case ALGO_C11:
 			rc = scanhash_c11(thr_id, &work, max_nonce, &hashes_done);

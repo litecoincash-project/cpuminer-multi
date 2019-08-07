@@ -23,8 +23,8 @@
 #include <sha3/sph_sha2.h>
 
 // Config
-#define BRANCHTORTURE_ALGO_COUNT 16
-//#define BRANCHTORTURE_DEBUG
+#define MINOTAUR_ALGO_COUNT 16
+//#define MINOTAUR_DEBUG
 
 typedef struct TortureNode TortureNode;
 typedef struct TortureGarden TortureGarden;
@@ -151,7 +151,7 @@ void traverse_garden(TortureGarden *garden, void *hash, TortureNode *node)
     unsigned char _ALIGN(64) partialHash[64];
     get_hash(partialHash, hash, garden, node->algo);
 
-#ifdef BRANCHTORTURE_DEBUG
+#ifdef MINOTAUR_DEBUG
     printf("* Ran algo %d. Partial hash:\t", node->algo);
     for (int i = 63; i >= 0; i--) printf("%02x", partialHash[i]);
     printf("\n");
@@ -214,7 +214,7 @@ void branchtorturehash(void *output, const void *input)
 
     // Assign algos to torture garden nodes based on initial hash
     for (int i = 0; i < 22; i++)
-        garden.nodes[i].algo = hash[i] % BRANCHTORTURE_ALGO_COUNT;
+        garden.nodes[i].algo = hash[i] % MINOTAUR_ALGO_COUNT;
 
     // Send the initial hash through the torture garden
     traverse_garden(&garden, hash, &garden.nodes[0]);
@@ -222,7 +222,7 @@ void branchtorturehash(void *output, const void *input)
     // Truncate the result to 32 bytes
     memcpy(output, hash, 32);
 
-#ifdef BRANCHTORTURE_DEBUG
+#ifdef MINOTAUR_DEBUG
     printf("*** Final hash:\t\t");
     for (int i = 31; i >= 0; i--) printf("%02x", hash[i]);
     printf("\n");

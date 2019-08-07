@@ -372,7 +372,7 @@
     <ClCompile Include="yescrypt\sha256_Y.c">
       <Filter>yescrypt</Filter>
     </ClCompile>
-    <ClCompile Include="algo\branchtorture.c">
+    <ClCompile Include="algo\minotaur.c">
       <Filter>algo</Filter>
     </ClCompile>
   </ItemGroup>
