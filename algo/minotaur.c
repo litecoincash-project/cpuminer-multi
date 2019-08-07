@@ -177,7 +177,7 @@ inline void link_nodes(TortureNode *parent, TortureNode *childLeft, TortureNode 
 }
 
 // Produce a 32-byte hash from 80-byte input data
-void branchtorturehash(void *output, const void *input)
+void minotaurhash(void *output, const void *input)
 {    
     // Create torture garden nodes. Note that both sides of 19 and 20 lead to 21, and 21 has no children (to make traversal complete).
     // Every path through the garden stops at 7 nodes.
@@ -232,7 +232,7 @@ void branchtorturehash(void *output, const void *input)
 }
 
 // Scan driver
-int scanhash_branchtorture(int thr_id, struct work *work, uint32_t max_nonce, uint64_t *hashes_done)
+int scanhash_minotaur(int thr_id, struct work *work, uint32_t max_nonce, uint64_t *hashes_done)
 {
 	uint32_t _ALIGN(64) hash[8];
 	uint32_t _ALIGN(64) endiandata[20];
@@ -252,7 +252,7 @@ int scanhash_branchtorture(int thr_id, struct work *work, uint32_t max_nonce, ui
 
 	do {
 		be32enc(&endiandata[19], nonce);
-		branchtorturehash(hash, endiandata);
+		minotaurhash(hash, endiandata);
 
 		if (hash[7] <= Htarg && fulltest(hash, ptarget)) {
 			work_set_target_ratio(work, hash);
