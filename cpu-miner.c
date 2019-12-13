@@ -2285,6 +2285,7 @@ static void *miner_thread(void *userdata)
 			case ALGO_DROP:
 			case ALGO_PLUCK:
 			case ALGO_YESCRYPT:
+			case ALGO_MINOTAUR:
 				max64 = 0x1ff;
 				break;
 			case ALGO_ALLIUM:
@@ -2571,6 +2572,7 @@ static void *miner_thread(void *userdata)
 			case ALGO_CRYPTONIGHT:
 			case ALGO_PLUCK:
 			case ALGO_SCRYPTJANE:
+			case ALGO_MINOTAUR:
 				applog(LOG_INFO, "CPU #%d: %.2f H/s", thr_id, thr_hashrates[thr_id]);
 				break;
 			default:

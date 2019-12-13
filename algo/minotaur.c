@@ -22,8 +22,11 @@
 #include <sha3/sph_whirlpool.h>
 #include <sha3/sph_sha2.h>
 
+#include <lyra2/Lyra2.h>
+
 // Config
-#define MINOTAUR_ALGO_COUNT 16
+#define MINOTAUR_ALGO_COUNT		16
+#define MINOTAUR_LYRA_ROWS		16	// Lyra2's memory usage = MINOTAUR_LYRA_ROWS * 256 * 768 bits.
 //#define MINOTAUR_DEBUG
 
 typedef struct TortureNode TortureNode;
@@ -59,6 +62,7 @@ struct TortureGarden {
 void get_hash(void *output, const void *input, TortureGarden *garden, unsigned int algo)
 {    
 	unsigned char _ALIGN(64) hash[64];
+
     switch (algo) {
         case 0:
             sph_blake512_init(&garden->context_blake);
@@ -108,7 +112,7 @@ void get_hash(void *output, const void *input, TortureGarden *garden, unsigned i
         case 9:
             sph_keccak512_init(&garden->context_keccak);
             sph_keccak512(&garden->context_keccak, input, 64);
-            sph_keccak512_close(&garden->context_keccak, hash);          
+            sph_keccak512_close(&garden->context_keccak, hash);
             break;
         case 10:
             sph_luffa512_init(&garden->context_luffa);
@@ -142,6 +146,7 @@ void get_hash(void *output, const void *input, TortureGarden *garden, unsigned i
             break;
     }
 
+    // Output the hash
     memcpy(output, hash, 64);
 }
 
@@ -151,12 +156,6 @@ void traverse_garden(TortureGarden *garden, void *hash, TortureNode *node)
     unsigned char _ALIGN(64) partialHash[64];
     get_hash(partialHash, hash, garden, node->algo);
 
-#ifdef MINOTAUR_DEBUG
-    printf("* Ran algo %d. Partial hash:\t", node->algo);
-    for (int i = 63; i >= 0; i--) printf("%02x", partialHash[i]);
-    printf("\n");
-    fflush(0);
-#endif    
 
     if (partialHash[63] % 2 == 0) {                                     // Last byte of output hash is even
         if (node->childLeft != NULL)
@@ -219,8 +218,8 @@ void minotaurhash(void *output, const void *input)
     // Send the initial hash through the torture garden
     traverse_garden(&garden, hash, &garden.nodes[0]);
 
-    // Truncate the result to 32 bytes
-    memcpy(output, hash, 32);
+	// Finally, hash using Lyra2 with memory-hard params
+	LYRA2(output, 32, hash, 64, hash, 64, 1, MINOTAUR_LYRA_ROWS, 256);
 
 #ifdef MINOTAUR_DEBUG
     printf("*** Final hash:\t\t");

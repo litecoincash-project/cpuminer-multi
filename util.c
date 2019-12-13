@@ -2362,9 +2362,6 @@ void print_hash_tests(void)
 	bmwhash(&hash[0], &buf[0]);
 	printpfx("bmw", hash);
 	
-    minotaurhash(&hash[0], &buf[0]);
-	printpfx("minotaur", hash);
-
 	c11hash(&hash[0], &buf[0]);
 	printpfx("c11", hash);
 
@@ -2412,6 +2409,9 @@ void print_hash_tests(void)
 
 	lyra2v3_hash(&hash[0], &buf[0]);
 	printpfx("lyra2v3", hash);
+
+    minotaurhash(&hash[0], &buf[0]);
+	printpfx("minotaur", hash);
 
 	cryptonight_hash(&hash[0], &buf[0]);
 	printpfx("monero", hash);

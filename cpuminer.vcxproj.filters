@@ -348,9 +348,6 @@
     <ClCompile Include="algo\axiom.c">
       <Filter>algo</Filter>
     </ClCompile>
-    <ClCompile Include="algo\scrypt-jane.c">
-      <Filter>algo</Filter>
-    </ClCompile>
     <ClCompile Include="algo\sia.c">
       <Filter>algo</Filter>
     </ClCompile>
@@ -373,6 +370,9 @@
       <Filter>yescrypt</Filter>
     </ClCompile>
     <ClCompile Include="algo\minotaur.c">
+      <Filter>algo</Filter>
+    </ClCompile>
+    <ClCompile Include="algo\scrypt-jane.c">
       <Filter>algo</Filter>
     </ClCompile>
   </ItemGroup>
