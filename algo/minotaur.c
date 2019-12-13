@@ -27,7 +27,7 @@
 // Config
 #define MINOTAUR_ALGO_COUNT		16
 #define MINOTAUR_LYRA_ROWS		16	// Lyra2's memory usage = MINOTAUR_LYRA_ROWS * 256 * 768 bits.
-//#define MINOTAUR_DEBUG
+#define MINOTAUR_DEBUG
 
 typedef struct TortureNode TortureNode;
 typedef struct TortureGarden TortureGarden;
@@ -155,7 +155,6 @@ void traverse_garden(TortureGarden *garden, void *hash, TortureNode *node)
 {
     unsigned char _ALIGN(64) partialHash[64];
     get_hash(partialHash, hash, garden, node->algo);
-
 
     if (partialHash[63] % 2 == 0) {                                     // Last byte of output hash is even
         if (node->childLeft != NULL)
