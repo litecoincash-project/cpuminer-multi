@@ -46,6 +46,7 @@ Algorithms
  * ✓ __lyra2REv2__
  * ✓ __lyra2REv3__ (VertCoin [VTC])
  * ✓ __myr-gr__ Myriad-Groestl (MyriadCoin [MYR])
+ * ✓ __minotaur__ Minotaur (Ring [RNG])
  * ✓ __neoscrypt__ (Feathercoin)
  * ✓ __nist5__ (MistCoin [MIC], TalkCoin [TAC], ...)
  * ✓ __pentablake__ (Joincoin)
