@@ -2526,9 +2526,6 @@ void print_hash_tests(void)
 	x20r_hash(&hash[0], &buf[0]);
 	printpfx("x20r", hash);
 
-	yescrypthash(&hash[0], &buf[0]);
-	printpfx("yescrypt", hash);
-
 	//zr5hash(&hash[0], &buf[0]);
 	zr5hash(&hash[0], (uint32_t*) &buf[0]);
 	memset(buf, 0, sizeof(buf));

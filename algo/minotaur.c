@@ -21,10 +21,13 @@
 #include <sha3/sph_shabal.h>
 #include <sha3/sph_whirlpool.h>
 #include <sha3/sph_sha2.h>
+#include <algo/yespower/yespower.h>
 
 // Config
-#define MINOTAUR_ALGO_COUNT		16
+#define MINOTAUR_ALGO_COUNT		17
 //#define MINOTAUR_DEBUG
+
+static const yespower_params_t yespower_params = {YESPOWER_1_0, 2048, 8, NULL, 0};
 
 typedef struct TortureNode TortureNode;
 typedef struct TortureGarden TortureGarden;
@@ -139,8 +142,11 @@ void get_hash(void *output, const void *input, TortureGarden *garden, unsigned i
         case 15:
             sph_whirlpool_init(&garden->context_whirlpool);
             sph_whirlpool(&garden->context_whirlpool, input, 64);
-            sph_whirlpool_close(&garden->context_whirlpool, hash);          
+            sph_whirlpool_close(&garden->context_whirlpool, hash);
             break;
+        // NB: The CPU-hard gate must be (MINOTAUR_ALGO_COUNT - 1).
+        case 16:
+            yespower_tls(input, 64, &yespower_params, (yespower_binary_t*)hash);
     }
 
     // Output the hash
@@ -209,7 +215,11 @@ void minotaurhash(void *output, const void *input)
 
     // Assign algos to torture garden nodes based on initial hash
     for (int i = 0; i < 22; i++)
-        garden.nodes[i].algo = hash[i] % MINOTAUR_ALGO_COUNT;
+        garden.nodes[i].algo = hash[i] % (MINOTAUR_ALGO_COUNT - 1); // Don't select the CPU-hard gate during this phase
+
+    // Force a node to be CPU-hard
+    int forceCPUNode = hash[22] % 22;
+    garden.nodes[forceCPUNode].algo = MINOTAUR_ALGO_COUNT - 1;
 
     // Send the initial hash through the torture garden
     traverse_garden(&garden, hash, &garden.nodes[0]);
@@ -218,8 +228,8 @@ void minotaurhash(void *output, const void *input)
     memcpy(output, hash, 32);
 
 #ifdef MINOTAUR_DEBUG
-    printf("*** Final hash:\t\t");
-    for (int i = 31; i >= 0; i--) printf("%02x", output[i]);
+    printf("*** Yespower node was %i. Final hash:\t\t", forceCPUNode);
+    for (int i = 0; i < 32; i++) printf("%02x", hash[i]);
     printf("\n");
 
     fflush(0);

@@ -357,18 +357,6 @@
     <ClCompile Include="algo\sonoa.c">
       <Filter>algo</Filter>
     </ClCompile>
-    <ClCompile Include="algo\yescrypt.c">
-      <Filter>algo</Filter>
-    </ClCompile>
-    <ClCompile Include="yescrypt\yescrypt-common.c">
-      <Filter>yescrypt</Filter>
-    </ClCompile>
-    <ClCompile Include="yescrypt\yescrypt-best.c">
-      <Filter>yescrypt</Filter>
-    </ClCompile>
-    <ClCompile Include="yescrypt\sha256_Y.c">
-      <Filter>yescrypt</Filter>
-    </ClCompile>
     <ClCompile Include="algo\minotaur.c">
       <Filter>algo</Filter>
     </ClCompile>
@@ -575,18 +563,6 @@
     <ClInclude Include="res\resource.h">
       <Filter>res</Filter>
     </ClInclude>
-    <ClInclude Include="yescrypt\sha256_Y.h">
-      <Filter>yescrypt</Filter>
-    </ClInclude>
-    <ClInclude Include="yescrypt\sysendian.h">
-      <Filter>yescrypt</Filter>
-    </ClInclude>
-    <ClInclude Include="yescrypt\yescrypt.h">
-      <Filter>yescrypt</Filter>
-    </ClInclude>
-    <ClInclude Include="yescrypt\yescrypt-platform.h">
-      <Filter>yescrypt</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="sph">
@@ -624,9 +600,6 @@
     </Filter>
     <Filter Include="res">
       <UniqueIdentifier>{5969f6d8-98c0-49c9-8e4c-51c54b5f0e16}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="yescrypt">
-      <UniqueIdentifier>{678c0f76-3cd5-418b-bc6b-84a10d81f789}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
