@@ -185,7 +185,7 @@ _OR_
  make depend && make && make install
  cd ..
 
- # Build the miner
+ # Build the miner (NOTE: Add -march=native to CFLAGS if building on the target machine)
  autoreconf -fi -I${DEPS}/share/aclocal
  ./configure --host=x86_64-w64-mingw32 \
     CFLAGS="-DWIN32 -DCURL_STATICLIB -O3 -I${DEPS}/include -DPTW32_STATIC_LIB -DOPENSSL_NO_ASM -DUSE_ASM" \

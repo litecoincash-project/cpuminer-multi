@@ -4,16 +4,16 @@
 
 	"api-bind" : "127.0.0.1:4048",
 
-	"url" : "stratum+tcp://xxx.xxx.org:4252",
+	"url" : "stratum+tcp://xxx.yyy.zzz:1234",
 	"user" : "benchmark",
-	"pass" : "d=0.024",
+	"pass" : "benchmark",
 
 	"algo" : "minotaurx",
 	"threads" : 0,
 	"cpu-priority" : 0,
 	"cpu-affinity" : -1,
 
-	"benchmark" : false,
+	"benchmark" : true,
 	"debug" : false,
 	"protocol": false,
 	"show-diff": true,

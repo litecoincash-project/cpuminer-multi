@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [ "$OS" = "Windows_NT" ]; then
-    ./mingw64.sh
-    exit 0
-fi
-
 make clean || echo clean
 
 rm -f config.status
