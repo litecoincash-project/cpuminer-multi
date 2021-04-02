@@ -988,8 +988,12 @@ size_t address_to_script(unsigned char *out, size_t outsz, const char *addr)
 	if (addrver < 0)
 		return 0;
 	switch (addrver) {
-		case 5:    /* Bitcoin script hash */
-		case 196:  /* Testnet script hash */
+		case 5:    /* LCC mainnet script hash */
+		case 50:   /* LCC mainnet alt script hash */
+		case 196:  /* LCC testnet script hash */
+		case 58:   /* LCC testnet alt script hash */
+		case 81:   /* RNG mainnet script hash */
+		case 78:   /* RNG mainnet script hash */
 			if (outsz < (rv = 23))
 				return rv;
 			out[ 0] = 0xa9;  /* OP_HASH160 */
