@@ -153,7 +153,10 @@ _OR_
  wget ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.tar.gz
  wget https://www.openssl.org/source/openssl-1.1.1k.tar.gz
  wget https://zlib.net/zlib-1.2.11.tar.gz
- tar zxf *.tar.gz
+ tar zxf openssl-1.1.1k.tar.gz
+ tar zxf zlib-1.2.11.tar.gz
+ tar zxf pthreads-w32-2-9-1-release.tar.gz
+ tar zxf curl-7.40.0.tar.gz
  mkdir win64_deps
  DEPS="${PWD}/win64_deps"
 
