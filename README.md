@@ -97,9 +97,9 @@ Dependencies
 
 Download
 ========
- * Windows releases: https://github.com/tpruvot/cpuminer-multi/releases
- * Git tree:   https://github.com/tpruvot/cpuminer-multi
-   * Clone with `git clone https://github.com/tpruvot/cpuminer-multi`
+ * Windows releases: https://github.com/litecoincash-project/cpuminer-multi/releases
+ * Git tree:   https://github.com/litecoincash-project/cpuminer-multi
+   * Clone with `git clone https://github.com/litecoincash-project/cpuminer-multi`
 
 Build
 =====
