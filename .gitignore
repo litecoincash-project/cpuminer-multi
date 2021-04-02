@@ -51,3 +51,9 @@ sign.sh
 compat/curl-for-windows/
 just*.bat
 .vscode
+
+curl-*
+pthreads-*
+openssl-*
+zlib-*
+win64_deps

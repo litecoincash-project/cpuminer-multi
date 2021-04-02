@@ -8,7 +8,7 @@
 	"user" : "benchmark",
 	"pass" : "d=0.024",
 
-	"algo" : "decred",
+	"algo" : "minotaur",
 	"threads" : 0,
 	"cpu-priority" : 0,
 	"cpu-affinity" : -1,

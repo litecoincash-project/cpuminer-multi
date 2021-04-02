@@ -1,10 +1,10 @@
 CPUMiner-Multi
 ==============
 
-[![Build Status](https://travis-ci.org/tpruvot/cpuminer-multi.svg)](https://travis-ci.org/tpruvot/cpuminer-multi)
-
 This is a multi-threaded CPU miner,
 fork of [pooler](//github.com/pooler)'s cpuminer (see AUTHORS for list of contributors).
+
+This fork adds support for Minotaur and MinotaurX.
 
 #### Table of contents
 
@@ -46,6 +46,7 @@ Algorithms
  * ✓ __lyra2REv2__
  * ✓ __lyra2REv3__ (VertCoin [VTC])
  * ✓ __myr-gr__ Myriad-Groestl (MyriadCoin [MYR])
+ * ✓ __minotaur__ Minotaur (Ring [RNG])
  * ✓ __minotaur__ Minotaur (Ring [RNG])
  * ✓ __neoscrypt__ (Feathercoin)
  * ✓ __nist5__ (MistCoin [MIC], TalkCoin [TAC], ...)
@@ -139,26 +140,54 @@ _OR_
  * To build a 64-bit binary, export OBJECT_MODE=64
  * GNU-style long options are not supported, but are accessible via configuration file
 
-#### Basic Windows build with Visual Studio 2013
- * All the required .lib files are now included in tree (windows only)
- * AVX enabled by default for x64 platform (AVX2 and XOP could also be used)
+#### Windows build (Cross-compiled from Ubuntu 20.04 on WSL2)
 
-#### Basic Windows build instructions, using MinGW64:
- * Install MinGW64 and the MSYS Developer Tool Kit (http://www.mingw.org/)
-   * Make sure you have mstcpip.h in MinGW\include
- * install pthreads-w64
- * Install libcurl devel (http://curl.haxx.se/download.html)
-   * Make sure you have libcurl.m4 in MinGW\share\aclocal
-   * Make sure you have curl-config in MinGW\bin
- * Install openssl devel (https://www.openssl.org/related/binaries.html)
- * In the MSYS shell, run:
-   * for 64bit, you can use `./mingw64.sh` else :
-     `./autogen.sh	# only needed if building from git repo`
-   ```
-   LIBCURL="-lcurldll" ./configure CFLAGS="*-march=native*"
-   # Use -march=native if building for a single machine
-   make
-    ```
+```
+ # Get build tools
+ sudo apt install git automake autoconf make mingw-w64-x86-64-dev mingw-w64-tools mingw-w64
+
+ # Get dependencies
+ wget http://curl.haxx.se/download/curl-7.40.0.tar.gz
+ wget ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.tar.gz
+ wget https://www.openssl.org/source/openssl-1.1.1k.tar.gz
+ wget https://zlib.net/zlib-1.2.11.tar.gz
+ tar zxf *.tar.gz
+ mkdir win64_deps
+ DEPS="${PWD}/win64_deps"
+
+ # Build dependency: curl
+ cd curl-7.40.0
+ ./configure --with-winssl --enable-static --prefix=$DEPS --host=x86_64-w64-mingw32 --disable-shared --disable-ldap
+ make install
+ cd ..
+
+ # Build dependency: pthreads
+ cd pthreads-w32-2-9-1-release/
+ cp config.h pthreads_win32_config.h
+ make -f GNUmakefile CROSS="x86_64-w64-mingw32-" clean GC-static
+ cp libpthreadGC2.a ${DEPS}/lib/libpthread.a
+ cp pthread.h semaphore.h sched.h ${DEPS}/include
+ cd ..
+
+ # Build dependency: zlib
+ cd zlib-1.2.11/
+ make -f win32/Makefile.gcc BINARY_PATH=${DEPS}/bin INCLUDE_PATH=${DEPS}/include LIBRARY_PATH=${DEPS}/lib SHARED_MODE=1 PREFIX=x86_64-w64-mingw32- install
+ cd ..
+
+ # Build dependency: openssl
+ cd openssl-1.1.1k
+ ./Configure --prefix=${DEPS}/openssl --cross-compile-prefix=x86_64-w64-mingw32- no-idea no-mdc2 no-rc5 no-shared mingw64
+ make depend && make && make install
+ cd ..
+
+ # Build the miner
+ autoreconf -fi -I${DEPS}/share/aclocal
+ ./configure --host=x86_64-w64-mingw32 \
+    CFLAGS="-DWIN32 -DCURL_STATICLIB -O3 -I${DEPS}/include -DPTW32_STATIC_LIB -DOPENSSL_NO_ASM -DUSE_ASM" \
+    --with-crypto=${DEPS}/openssl --with-curl=${DEPS} \
+    LDFLAGS="-static -L${DEPS}/lib" 
+ make
+```
 
 #### Architecture-specific notes:
  * ARM:
@@ -192,6 +221,9 @@ Donations
 =========
 Donations for the work done in this fork are accepted :
 
+Tanner :
+* LCC: `CashCFfv8CmdWo6wyMGQWtmQnaToyhgsWr`
+
 Tanguy Pruvot :
 * BTC: `1FhDPLPpw18X4srecguG3MxJYe4a1JsZnd`
 
@@ -204,6 +236,7 @@ Credits
 CPUMiner-multi was forked from pooler's CPUMiner, and has been started by Lucas Jones.
 * [tpruvot](https://github.com/tpruvot) added all the recent features and newer algorythmns
 * [Wolf9466](https://github.com/wolf9466) helped with Intel AES-NI support for CryptoNight
+* Tanner from LCC added Minotaur and MinotaurX
 
 License
 =======
