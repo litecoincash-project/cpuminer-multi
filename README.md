@@ -1,10 +1,11 @@
 CPUMiner-Multi
 ==============
 
-This is a multi-threaded CPU miner,
-fork of [pooler](//github.com/pooler)'s cpuminer (see AUTHORS for list of contributors).
+This is a multi-threaded CPU miner for Minotaur and MinotaurX.
 
-This fork adds support for Minotaur and MinotaurX.
+It's a fork of [tpruvot](//github.com/tpruvot/)'s cpuminer, in turn forked from [pooler](//github.com/pooler)'s miner. 
+
+See AUTHORS for list of contributors.
 
 #### Table of contents
 
@@ -19,7 +20,11 @@ This fork adds support for Minotaur and MinotaurX.
 
 Algorithms
 ==========
-#### Currently supported
+#### The main show
+ * ✓ __minotaur__ Minotaur (Ring [RNG])
+ * ✓ __minotaurx__ MinotaurX (Litecoin Cash [LCC], Ring [RNG])
+
+#### Others currently supported
  * ✓ __scrypt__ (Litecoin, Dogecoin, Feathercoin, ...)
  * ✓ __scrypt:N__
  * ✓ __scrypt-jane:N__
@@ -45,8 +50,6 @@ Algorithms
  * ✓ __lyra2REv2__
  * ✓ __lyra2REv3__ (VertCoin [VTC])
  * ✓ __myr-gr__ Myriad-Groestl (MyriadCoin [MYR])
- * ✓ __minotaur__ Minotaur (Ring [RNG])
- * ✓ __minotaurx__ MinotaurX (Litecoin Cash [LCC], Ring [RNG])
  * ✓ __neoscrypt__ (Feathercoin)
  * ✓ __nist5__ (MistCoin [MIC], TalkCoin [TAC], ...)
  * ✓ __pentablake__ (Joincoin)
