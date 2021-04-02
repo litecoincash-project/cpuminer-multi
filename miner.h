@@ -261,9 +261,8 @@ int scanhash_x16s(int thr_id, struct work *work, uint32_t max_nonce, uint64_t *h
 int scanhash_x17(int thr_id, struct work *work, uint32_t max_nonce, uint64_t *hashes_done);
 int scanhash_x20r(int thr_id, struct work *work, uint32_t max_nonce, uint64_t *hashes_done);
 int scanhash_xevan(int thr_id, struct work *work, uint32_t max_nonce, uint64_t *hashes_done);
-int scanhash_yescrypt(int thr_id, struct work *work, uint32_t max_nonce, uint64_t *hashes_done);
 int scanhash_zr5(int thr_id, struct work *work, uint32_t max_nonce, uint64_t *hashes_done);
-int scanhash_minotaur(int thr_id, struct work *work, uint32_t max_nonce, uint64_t *hashes_done);
+int scanhash_minotaur(int thr_id, struct work *work, uint32_t max_nonce, uint64_t *hashes_done, bool minotaurX);
 
 /* api related */
 void *api_thread(void *userdata);
@@ -512,7 +511,7 @@ void blakecoinhash(void *state, const void *input);
 void blake2s_hash(void *output, const void *input);
 void blake2b_hash(void *output, const void *input);
 void bmwhash(void *output, const void *input);
-void minotaurhash(void *output, const void *input);
+void minotaurhash(void *output, const void *input, bool minotaurX);
 void c11hash(void *output, const void *input);
 void cryptolight_hash(void* output, const void* input);
 void cryptonight_hash(void* output, const void* input);
@@ -564,7 +563,6 @@ void x16s_hash(void *output, const void *input);
 void x17hash(void *output, const void *input);
 void x20r_hash(void *output, const void *input);
 void zr5hash(void *output, const void *input);
-void yescrypthash(void *output, const void *input);
 void zr5hash_pok(void *output, uint32_t *pdata);
 
 

@@ -105,7 +105,8 @@ enum algos {
 	ALGO_LYRA2,       /* Lyra2RE */
 	ALGO_LYRA2REV2,   /* Lyra2REv2 */
 	ALGO_LYRA2V3,     /* Lyra2REv3 (Vertcoin) */
-    ALGO_MINOTAUR,    /* Minotaur (Ring) */
+	ALGO_MINOTAUR,    /* Minotaur (Ring) */
+	ALGO_MINOTAURX,   /* MinotaurX (LCC, Ring) */
 	ALGO_MYR_GR,      /* Myriad Groestl */
 	ALGO_NIST5,       /* Nist5 */
 	ALGO_PENTABLAKE,  /* Pentablake */
@@ -140,7 +141,6 @@ enum algos {
 	ALGO_X17,         /* X17 */
 	ALGO_X20R,
 	ALGO_XEVAN,
-	ALGO_YESCRYPT,
 	ALGO_ZR5,
 	ALGO_COUNT
 };
@@ -175,6 +175,7 @@ static const char *algo_names[] = {
 	"lyra2rev2",
 	"lyra2v3",
 	"minotaur",
+	"minotaurx",
 	"myr-gr",
 	"nist5",
 	"pentablake",
@@ -209,7 +210,6 @@ static const char *algo_names[] = {
 	"x17",
 	"x20r",
 	"xevan",
-	"yescrypt",
 	"zr5",
 	"\0"
 };
@@ -341,6 +341,7 @@ Options:\n\
                           lyra2rev2    Lyra2REv2\n\
                           lyra2v3      Lyra2REv3 (Vertcoin)\n\
                           minotaur     Minotaur\n\
+                          minotaurx    MinotaurX\n\
                           myr-gr       Myriad-Groestl\n\
                           neoscrypt    NeoScrypt(128, 2, 1)\n\
                           nist5        Nist5\n\
@@ -375,7 +376,6 @@ Options:\n\
                           x17          X17\n\
                           x20r         X20R\n\
                           xevan        Xevan (BitSend)\n\
-                          yescrypt     Yescrypt\n\
                           zr5          ZR5\n\
   -o, --url=URL         URL of mining server\n\
   -O, --userpass=U:P    username:password pair for mining server\n\
@@ -1948,7 +1948,6 @@ static void stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 			case ALGO_SCRYPTJANE:
 			case ALGO_NEOSCRYPT:
 			case ALGO_PLUCK:
-			case ALGO_YESCRYPT:
 				work_set_target(work, sctx->job.diff / (65536.0 * opt_diff_factor));
 				break;
 			case ALGO_ALLIUM:
@@ -2284,8 +2283,8 @@ static void *miner_thread(void *userdata)
 				break;
 			case ALGO_DROP:
 			case ALGO_PLUCK:
-			case ALGO_YESCRYPT:
 			case ALGO_MINOTAUR:
+			case ALGO_MINOTAURX:
 				max64 = 0x1ff;
 				break;
 			case ALGO_ALLIUM:
@@ -2384,8 +2383,11 @@ static void *miner_thread(void *userdata)
 			rc = scanhash_bmw(thr_id, &work, max_nonce, &hashes_done);
 			break;
 		case ALGO_MINOTAUR:
-			rc = scanhash_minotaur(thr_id, &work, max_nonce, &hashes_done);
-			break;            
+			rc = scanhash_minotaur(thr_id, &work, max_nonce, &hashes_done, false);
+			break;
+		case ALGO_MINOTAURX:
+			rc = scanhash_minotaur(thr_id, &work, max_nonce, &hashes_done, true);
+			break;
 		case ALGO_C11:
 			rc = scanhash_c11(thr_id, &work, max_nonce, &hashes_done);
 			break;
@@ -2545,9 +2547,6 @@ static void *miner_thread(void *userdata)
 		case ALGO_XEVAN:
 			rc = scanhash_xevan(thr_id, &work, max_nonce, &hashes_done);
 			break;
-		case ALGO_YESCRYPT:
-			rc = scanhash_yescrypt(thr_id, &work, max_nonce, &hashes_done);
-			break;
 		case ALGO_ZR5:
 			rc = scanhash_zr5(thr_id, &work, max_nonce, &hashes_done);
 			break;
@@ -2573,6 +2572,7 @@ static void *miner_thread(void *userdata)
 			case ALGO_PLUCK:
 			case ALGO_SCRYPTJANE:
 			case ALGO_MINOTAUR:
+			case ALGO_MINOTAURX:
 				applog(LOG_INFO, "CPU #%d: %.2f H/s", thr_id, thr_hashrates[thr_id]);
 				break;
 			default:
@@ -3518,8 +3518,8 @@ static int thread_create(struct thr_info *thr, void* func)
 
 static void show_credits()
 {
-	printf("** " PACKAGE_NAME " " PACKAGE_VERSION " by tpruvot@github **\n");
-	printf("BTC donation address: 1FhDPLPpw18X4srecguG3MxJYe4a1JsZnd (tpruvot)\n\n");
+	printf("** " PACKAGE_NAME " " PACKAGE_VERSION " by Tanner^LCC **\n");
+	printf("LCC donation address: CashCFfv8CmdWo6wyMGQWtmQnaToyhgsWr\n\n");
 }
 
 void get_defconfig_path(char *out, size_t bufsize, char *argv0);

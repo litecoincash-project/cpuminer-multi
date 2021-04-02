@@ -54,8 +54,6 @@ cpuminer_SOURCES = \
   crypto/hash.c \
   crypto/aesb.c \
   lyra2/Lyra2.c lyra2/Sponge.c \
-  yescrypt/yescrypt-common.c yescrypt/yescrypt-best.c \
-  yescrypt/sha256_Y.c \
   algo/allium.c \
   algo/axiom.c \
   algo/bastion.c \
@@ -115,8 +113,9 @@ cpuminer_SOURCES = \
   algo/x20r.c \
   algo/x17.c \
   algo/xevan.c \
-  algo/yescrypt.c \
-  algo/zr5.c
+  algo/zr5.c \
+  algo/yespower/yespower.c \
+  algo/yespower/crypto/sha256.c
 
 disable_flags =
 

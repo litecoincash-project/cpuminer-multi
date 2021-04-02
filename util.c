@@ -2410,8 +2410,11 @@ void print_hash_tests(void)
 	lyra2v3_hash(&hash[0], &buf[0]);
 	printpfx("lyra2v3", hash);
 
-    minotaurhash(&hash[0], &buf[0]);
+	minotaurhash(&hash[0], &buf[0], false);
 	printpfx("minotaur", hash);
+
+	minotaurhash(&hash[0], &buf[0], true);
+	printpfx("minotaurx", hash);
 
 	cryptonight_hash(&hash[0], &buf[0]);
 	printpfx("monero", hash);
@@ -2525,9 +2528,6 @@ void print_hash_tests(void)
 
 	x20r_hash(&hash[0], &buf[0]);
 	printpfx("x20r", hash);
-
-	yescrypthash(&hash[0], &buf[0]);
-	printpfx("yescrypt", hash);
 
 	//zr5hash(&hash[0], &buf[0]);
 	zr5hash(&hash[0], (uint32_t*) &buf[0]);
