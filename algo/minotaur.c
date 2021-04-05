@@ -27,7 +27,7 @@
 #define MINOTAUR_ALGO_COUNT 16
 //#define MINOTAUR_DEBUG
 
-static const yespower_params_t yespower_params = {YESPOWER_1_0, 2048, 8, NULL, 0};
+static const yespower_params_t yespower_params = {YESPOWER_1_0, 2048, 8, "et in arcadia ego", 17};
 
 typedef struct TortureNode TortureNode;
 typedef struct TortureGarden TortureGarden;
