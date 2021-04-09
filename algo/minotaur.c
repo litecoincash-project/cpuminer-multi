@@ -62,6 +62,7 @@ struct TortureGarden {
 void get_hash(void *output, const void *input, TortureGarden *garden, unsigned int algo)
 {    
 	unsigned char _ALIGN(64) hash[64];
+    memset(hash, 0, sizeof(hash));                        // Doesn't affect Minotaur as all hash outputs are 64 bytes; required for MinotaurX due to yespower's 32 byte output.
 
     switch (algo) {
         case 0:
@@ -157,7 +158,15 @@ void get_hash(void *output, const void *input, TortureGarden *garden, unsigned i
 void traverse_garden(TortureGarden *garden, void *hash, TortureNode *node)
 {
     unsigned char _ALIGN(64) partialHash[64];
+    memset(partialHash, 0, sizeof(partialHash));                        // Doesn't affect Minotaur as all hash outputs are 64 bytes; required for MinotaurX due to yespower's 32 byte output.
     get_hash(partialHash, hash, garden, node->algo);
+
+#ifdef MINOTAUR_DEBUG
+    printf("* Ran algo %d. Partial hash:\t", node->algo);
+    for (int i = 63; i >= 0; i--) printf("%02x", partialHash[i]);
+    printf("\n");
+    fflush(0);
+#endif
 
     if (partialHash[63] % 2 == 0) {                                     // Last byte of output hash is even
         if (node->childLeft != NULL)
@@ -213,6 +222,13 @@ void minotaurhash(void *output, const void *input, bool minotaurX)
 	sph_sha512(&garden.context_sha2, input, 80);
 	sph_sha512_close(&garden.context_sha2, hash);
 
+#ifdef MINOTAUR_DEBUG
+    printf("** Initial hash:\t\t");
+    for (int i = 63; i >= 0; i--) printf("%02x", hash[i]);
+    printf("\n");
+    fflush(0);
+#endif
+
     // Assign algos to torture garden nodes based on initial hash
     for (int i = 0; i < 22; i++)
         garden.nodes[i].algo = hash[i] % MINOTAUR_ALGO_COUNT;
@@ -228,13 +244,9 @@ void minotaurhash(void *output, const void *input, bool minotaurX)
     memcpy(output, hash, 32);
 
 #ifdef MINOTAUR_DEBUG
-    if (minotaurX)
-        printf("*** MinotaurX: Final hash:\t");
-    else
-        printf("*** Minotaur: Final hash:\t");
-    for (int i = 0; i < 32; i++) printf("%02x", hash[i]);
+    printf("** Final hash:\t\t\t");
+    for (int i = 31; i >= 0; i--) printf("%02x", hash[i]);
     printf("\n");
-
     fflush(0);
 #endif
 }
