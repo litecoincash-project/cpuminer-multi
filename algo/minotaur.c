@@ -235,7 +235,7 @@ void minotaurhash(void *output, const void *input, bool minotaurX)
 
     // Hardened garden gates on MinotaurX
     if (minotaurX)
-        garden.nodes[0].algo = garden.nodes[21].algo = MINOTAUR_ALGO_COUNT;
+        garden.nodes[21].algo = MINOTAUR_ALGO_COUNT;
 
     // Send the initial hash through the torture garden
     traverse_garden(&garden, hash, &garden.nodes[0]);

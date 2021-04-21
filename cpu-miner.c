@@ -834,6 +834,7 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 		goto out;
 	}
 	version = (uint32_t) json_integer_value(tmp);
+
     // Segwit BEGIN
     /*
 	if ((version & 0xffU) > BLOCK_VERSION_CURRENT) {
