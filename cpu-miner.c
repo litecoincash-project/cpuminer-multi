@@ -224,6 +224,7 @@ bool opt_extranonce = true;
 bool want_longpoll = true;
 bool have_longpoll = false;
 bool have_gbt = true;
+bool opt_minotaurx = false; // Flag for MinX on GBT
 bool allow_getwork = true;
 bool want_stratum = true;
 bool have_stratum = false;
@@ -1477,7 +1478,11 @@ static const char *gbt_lp_req =
 	"{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": "
 	GBT_CAPABILITIES ", \"rules\": " GBT_RULES ", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
 // Segwit END
-
+// Parameters for MinX BlockTemplate BEGIN
+#define MINX_PARAMS "\"powalgo\": \"minotaurx\""
+static const char *gbt_req_minx = "{\"method\": \"getblocktemplate\", \"params\": [{"MINX_PARAMS", \"capabilities\": "GBT_CAPABILITIES", \"rules\": "GBT_RULES"}], \"id\":0}\r\n";
+static const char *gbt_lp_req_minx = "{\"method\": \"getblocktemplate\", \"params\": [{"MINX_PARAMS", \"capabilities\": "GBT_CAPABILITIES", \"rules\": "GBT_RULES", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
+// Parameters for MinX BlockTemplate END
 
 static bool get_upstream_work(CURL *curl, struct work *work)
 {
@@ -1494,9 +1499,18 @@ start:
 		snprintf(s, 128, "{\"method\": \"getjob\", \"params\": {\"id\": \"%s\"}, \"id\":1}\r\n", rpc2_id);
 		val = json_rpc2_call(curl, rpc_url, rpc_userpass, s, NULL, 0);
 	} else {
+		// Parameters for MinX BlockTemplate BEGIN
+		/*
 		val = json_rpc_call(curl, rpc_url, rpc_userpass,
 		                    have_gbt ? gbt_req : getwork_req,
 		                    &err, have_gbt ? JSON_RPC_QUIET_404 : 0);
+		*/
+		if(!opt_minotaurx) {
+			val = json_rpc_call(curl, rpc_url, rpc_userpass, have_gbt ? gbt_req : getwork_req, &err, have_gbt ? JSON_RPC_QUIET_404 : 0);
+		} else {
+			val = json_rpc_call(curl, rpc_url, rpc_userpass, have_gbt ? gbt_req_minx : getwork_req, &err, have_gbt ? JSON_RPC_QUIET_404 : 0);
+		}
+		// Parameters for MinX BlockTemplate BEGIN
 	}
 	gettimeofday(&tv_end, NULL);
 
@@ -2694,8 +2708,19 @@ start:
 			val = json_rpc2_call(curl, rpc_url, rpc_userpass, s, &err, JSON_RPC_LONGPOLL);
 		} else {
 			if (have_gbt) {
+				// Parameters for MinX BlockTemplate BEGIN
+				/*
 				req = (char*) malloc(strlen(gbt_lp_req) + strlen(lp_id) + 1);
 				sprintf(req, gbt_lp_req, lp_id);
+				*/
+				if(!opt_minotaurx) {
+					req = (char*) malloc(strlen(gbt_lp_req) + strlen(lp_id) + 1);
+					sprintf(req, gbt_lp_req, lp_id);
+				} else {
+					req = (char*) malloc(strlen(gbt_lp_req_minx) + strlen(lp_id) + 1);
+					sprintf(req, gbt_lp_req_minx, lp_id);
+				}
+				// Parameters for MinX BlockTemplate END
 			}
 			val = json_rpc_call(curl, rpc_url, rpc_userpass, getwork_req, &err, JSON_RPC_LONGPOLL);
 			val = json_rpc_call(curl, lp_url, rpc_userpass,
@@ -3586,6 +3611,9 @@ int main(int argc, char *argv[]) {
 		}
 	} else if(opt_algo == ALGO_DECRED || opt_algo == ALGO_SIA) {
 		have_gbt = false;
+	} else if(opt_algo == ALGO_MINOTAURX) { // Activating MinX for GBT
+		// applog(LOG_INFO, "Activating the BlockTemplate for MinotaurX");
+		opt_minotaurx = true;
 	}
 
 	if (!opt_benchmark && !rpc_url) {
