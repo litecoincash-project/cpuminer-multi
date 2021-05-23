@@ -1473,7 +1473,11 @@ static const char *gbt_lp_req = "{\"method\": \"getblocktemplate\", \"params\": 
 static const char *gbt_req = "{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": " GBT_CAPABILITIES ", \"rules\": " GBT_RULES "}], \"id\":0}\r\n";
 static const char *gbt_lp_req = "{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": " GBT_CAPABILITIES ", \"rules\": " GBT_RULES ", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
 // Segwit END
-
+// Parameters for MinX BlockTemplate BEGIN
+#define MINX_PARAMS "\"powalgo\": \"minotaurx\""
+static const char *gbt_req_minx = "{\"method\": \"getblocktemplate\", \"params\": [{"MINX_PARAMS", \"capabilities\": "GBT_CAPABILITIES", \"rules\": "GBT_RULES"}], \"id\":0}\r\n";
+static const char *gbt_lp_req_minx = "{\"method\": \"getblocktemplate\", \"params\": [{"MINX_PARAMS", \"capabilities\": "GBT_CAPABILITIES", \"rules\": "GBT_RULES", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
+// Parameters for MinX BlockTemplate END
 
 static bool get_upstream_work(CURL *curl, struct work *work)
 {
@@ -1499,8 +1503,8 @@ static bool get_upstream_work(CURL *curl, struct work *work)
 		if(!opt_minotaurx) {
 			val = json_rpc_call(curl, rpc_url, rpc_userpass, have_gbt ? gbt_req : getwork_req, &err, have_gbt ? JSON_RPC_QUIET_404 : 0);
 		} else {
-			#define MINX_PARAMS "\"powalgo\": \"minotaurx\""
-			static const char *gbt_req_minx = "{\"method\": \"getblocktemplate\", \"params\": [{"MINX_PARAMS", \"capabilities\": "GBT_CAPABILITIES", \"rules\": "GBT_RULES"}], \"id\":0}\r\n";
+			// #define MINX_PARAMS "\"powalgo\": \"minotaurx\""
+			// static const char *gbt_req_minx = "{\"method\": \"getblocktemplate\", \"params\": [{"MINX_PARAMS", \"capabilities\": "GBT_CAPABILITIES", \"rules\": "GBT_RULES"}], \"id\":0}\r\n";
 			val = json_rpc_call(curl, rpc_url, rpc_userpass, have_gbt ? gbt_req_minx : getwork_req, &err, have_gbt ? JSON_RPC_QUIET_404 : 0);
 		}
 	}
@@ -2706,8 +2710,8 @@ static void *longpoll_thread(void *userdata)
 					req = (char*) malloc(strlen(gbt_lp_req) + strlen(lp_id) + 1);
 					sprintf(req, gbt_lp_req, lp_id);
 				} else {
-					#define MINX_PARAMS "\"powalgo\": \"minotaurx\""
-					static const char *gbt_lp_req_minx = "{\"method\": \"getblocktemplate\", \"params\": [{"MINX_PARAMS", \"capabilities\": "GBT_CAPABILITIES", \"rules\": "GBT_RULES", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
+					// #define MINX_PARAMS "\"powalgo\": \"minotaurx\""
+					// static const char *gbt_lp_req_minx = "{\"method\": \"getblocktemplate\", \"params\": [{"MINX_PARAMS", \"capabilities\": "GBT_CAPABILITIES", \"rules\": "GBT_RULES", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
 					req = (char*) malloc(strlen(gbt_lp_req_minx) + strlen(lp_id) + 1);
 					sprintf(req, gbt_lp_req_minx, lp_id);
 				}
