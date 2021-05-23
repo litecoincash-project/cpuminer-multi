@@ -90,7 +90,7 @@ enum algos {
 	ALGO_BLAKE2B,
 	ALGO_BLAKE2S,     /* Blake2s */
 	ALGO_BMW,         /* BMW 256 */
-    ALGO_C11,         /* C11 Chaincoin/Flaxcoin X11 variant */
+	ALGO_C11,         /* C11 Chaincoin/Flaxcoin X11 variant */
 	ALGO_CRYPTOLIGHT, /* cryptonight-light (Aeon) */
 	ALGO_CRYPTONIGHT, /* CryptoNight */
 	ALGO_DECRED,      /* Decred */
@@ -228,6 +228,7 @@ bool allow_getwork = true;
 bool want_stratum = true;
 bool have_stratum = false;
 bool opt_stratum_stats = false;
+bool opt_minotaurx = false;
 bool allow_mininginfo = true;
 bool use_syslog = false;
 bool use_colors = true;
@@ -477,9 +478,9 @@ static struct option const options[] = {
 	{ "show-diff", 0, NULL, 1013 },
 	{ "hide-diff", 0, NULL, 1014 },
 	{ "max-log-rate", 1, NULL, 1019 },
-#ifdef HAVE_SYSLOG_H
+	#ifdef HAVE_SYSLOG_H
 	{ "syslog", 0, NULL, 'S' },
-#endif
+	#endif
 	{ "time-limit", 1, NULL, 1008 },
 	{ "threads", 1, NULL, 't' },
 	{ "timeout", 1, NULL, 'T' },
@@ -506,19 +507,20 @@ static inline void drop_policy(void)
 {
 	struct sched_param param;
 	param.sched_priority = 0;
-#ifdef SCHED_IDLE
+	#ifdef SCHED_IDLE
 	if (unlikely(sched_setscheduler(0, SCHED_IDLE, &param) == -1))
-#endif
-#ifdef SCHED_BATCH
+	#endif
+	#ifdef SCHED_BATCH
 		sched_setscheduler(0, SCHED_BATCH, &param);
-#endif
+	#endif
 }
 
 #ifdef __BIONIC__
 #define pthread_setaffinity_np(tid,sz,s) {} /* only do process affinity */
 #endif
 
-static void affine_to_cpu_mask(int id, unsigned long mask) {
+static void affine_to_cpu_mask(int id, unsigned long mask)
+{
 	cpu_set_t set;
 	CPU_ZERO(&set);
 	for (uint8_t i = 0; i < num_cpus; i++) {
@@ -536,7 +538,8 @@ static void affine_to_cpu_mask(int id, unsigned long mask) {
 
 #elif defined(WIN32) /* Windows */
 static inline void drop_policy(void) { }
-static void affine_to_cpu_mask(int id, unsigned long mask) {
+static void affine_to_cpu_mask(int id, unsigned long mask)
+{
 	if (id == -1)
 		SetProcessAffinityMask(GetCurrentProcess(), mask);
 	else
@@ -696,8 +699,7 @@ err_out:
 }
 
 // good alternative for wallet mining, difficulty and net hashrate
-static const char *info_req =
-"{\"method\": \"getmininginfo\", \"params\": [], \"id\":8}\r\n";
+static const char *info_req = "{\"method\": \"getmininginfo\", \"params\": [], \"id\":8}\r\n";
 
 static bool get_mininginfo(CURL *curl, struct work *work)
 {
@@ -775,17 +777,19 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 	uchar(*merkle_tree)[32] = NULL;
 	bool coinbase_append = false;
 	bool submit_coinbase = false;
-    // Segwit BEGIN
-	//bool version_force = false;
-	//bool version_reduce = false;
-    bool segwit = false;
-    // Segwit END
+	// Segwit BEGIN
+	/*
+	bool version_force = false;
+	bool version_reduce = false;
+	*/
+  bool segwit = false;
+  // Segwit END
 
 	json_t *tmp, *txa;
 	bool rc = false;
 
-    // Segwit BEGIN
-    tmp = json_object_get(val, "rules");
+  // Segwit BEGIN
+  tmp = json_object_get(val, "rules");
 	if (tmp && json_is_array(tmp)) {
 		n = json_array_size(tmp);
 		for (i = 0; i < n; i++) {
@@ -796,7 +800,7 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 				segwit = true;
 		}
 	}
-    // Segwit END
+  // Segwit END
 
 	tmp = json_object_get(val, "mutable");
 	if (tmp && json_is_array(tmp)) {
@@ -809,14 +813,14 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 				coinbase_append = true;
 			else if (!strcmp(s, "submit/coinbase"))
 				submit_coinbase = true;
-            // Segwit BEGIN
-            /*
+      // Segwit BEGIN
+      /*
 			else if (!strcmp(s, "version/force"))
 				version_force = true;
 			else if (!strcmp(s, "version/reduce"))
 				version_reduce = true;
-            */
-            // Segwit END
+      */      
+			// Segwit END
 		}
 	}
 
@@ -835,8 +839,8 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 	}
 	version = (uint32_t) json_integer_value(tmp);
 
-    // Segwit BEGIN
-    /*
+  // Segwit BEGIN
+  /*
 	if ((version & 0xffU) > BLOCK_VERSION_CURRENT) {
 		if (version_reduce) {
 			version = (version & ~0xffU) | BLOCK_VERSION_CURRENT;
@@ -848,8 +852,9 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 			applog(LOG_ERR, "Unrecognized block version: %u", version);
 			goto out;
 		}
-	}*/
-    // Segwit END
+	}
+	*/
+  // Segwit END
 
 	if (unlikely(!jobj_binary(val, "previousblockhash", prevhash, sizeof(prevhash)))) {
 		applog(LOG_ERR, "JSON invalid previousblockhash");
@@ -930,18 +935,18 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 		cbtx[41] = cbtx_size - 42; /* scriptsig length */
 		le32enc((uint32_t *)(cbtx+cbtx_size), 0xffffffff); /* sequence */
 		cbtx_size += 4;
-        // Segwit BEGIN
+    // Segwit BEGIN
 		//cbtx[cbtx_size++] = 1; /* out-counter */
-        cbtx[cbtx_size++] = segwit ? 2 : 1; /* out-counter */
-        // Segwit END
+    cbtx[cbtx_size++] = segwit ? 2 : 1; /* out-counter */
+    // Segwit END
 		le32enc((uint32_t *)(cbtx+cbtx_size), (uint32_t)cbvalue); /* value */
 		le32enc((uint32_t *)(cbtx+cbtx_size+4), cbvalue >> 32);
 		cbtx_size += 8;
 		cbtx[cbtx_size++] = (uint8_t) pk_script_size; /* txout-script length */
 		memcpy(cbtx+cbtx_size, pk_script, pk_script_size);
 		cbtx_size += (int) pk_script_size;
-        // Segwit BEGIN
-	    if (segwit) {
+    // Segwit BEGIN
+	  if (segwit) {
 			unsigned char (*wtree)[32] = calloc(tx_count + 2, 32);
 			memset(cbtx+cbtx_size, 0, 8); /* value */
 			cbtx_size += 8;
@@ -975,7 +980,7 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 			cbtx_size += 32;
 			free(wtree);
 		}
-        // Segwit END
+    // Segwit END
 		le32enc((uint32_t *)(cbtx+cbtx_size), 0); /* lock time */
 		cbtx_size += 4;
 		coinbase_append = true;
@@ -1038,19 +1043,19 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 		tmp = json_array_get(txa, i);
 		const char *tx_hex = json_string_value(json_object_get(tmp, "data"));
 		const int tx_size = tx_hex ? (int) (strlen(tx_hex) / 2) : 0;
-        // Segwit BEGIN
-        /*
-        unsigned char *tx = (uchar*) malloc(tx_size);
+		// Segwit BEGIN
+		/*
+    unsigned char *tx = (uchar*) malloc(tx_size);
 		if (!tx_hex || !hex2bin(tx, tx_hex, tx_size)) {
 			applog(LOG_ERR, "JSON invalid transactions");
 			free(tx);
 			goto out;
 		}
 		sha256d(merkle_tree[1 + i], tx, tx_size);
-        */
-        if (segwit) {
-            const char *txid = json_string_value(json_object_get(tmp, "txid"));
-            if (!txid || !hex2bin(merkle_tree[1 + i], txid, 32)) {
+    */
+    if (segwit) {
+    	const char *txid = json_string_value(json_object_get(tmp, "txid"));
+    	if (!txid || !hex2bin(merkle_tree[1 + i], txid, 32)) {
 				applog(LOG_ERR, "JSON invalid transaction txid");
 				goto out;
 			}
@@ -1063,9 +1068,9 @@ static bool gbt_work_decode(const json_t *val, struct work *work)
 				goto out;
 			}
 			sha256d(merkle_tree[1 + i], tx, tx_size);
-            free(tx);
-        }
-        // Segwit END
+			free(tx);
+		}
+		// Segwit END
 		if (!submit_coinbase)
 			strcat(work->txs, tx_hex);
 	}
@@ -1456,26 +1461,17 @@ out:
 	return rc;
 }
 
-static const char *getwork_req =
-	"{\"method\": \"getwork\", \"params\": [], \"id\":0}\r\n";
+static const char *getwork_req = "{\"method\": \"getwork\", \"params\": [], \"id\":0}\r\n";
 
 #define GBT_CAPABILITIES "[\"coinbasetxn\", \"coinbasevalue\", \"longpoll\", \"workid\"]"
 // Segwit BEGIN
 /*
-static const char *gbt_req =
-	"{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": "
-	GBT_CAPABILITIES "}], \"id\":0}\r\n";
-static const char *gbt_lp_req =
-	"{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": "
-	GBT_CAPABILITIES ", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
+static const char *gbt_req = "{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": " GBT_CAPABILITIES "}], \"id\":0}\r\n";
+static const char *gbt_lp_req = "{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": " GBT_CAPABILITIES ", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
 */
 #define GBT_RULES "[\"segwit\"]"
-static const char *gbt_req =
-	"{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": "
-	GBT_CAPABILITIES ", \"rules\": " GBT_RULES "}], \"id\":0}\r\n";
-static const char *gbt_lp_req =
-	"{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": "
-	GBT_CAPABILITIES ", \"rules\": " GBT_RULES ", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
+static const char *gbt_req = "{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": " GBT_CAPABILITIES ", \"rules\": " GBT_RULES "}], \"id\":0}\r\n";
+static const char *gbt_lp_req = "{\"method\": \"getblocktemplate\", \"params\": [{\"capabilities\": " GBT_CAPABILITIES ", \"rules\": " GBT_RULES ", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
 // Segwit END
 
 
@@ -1486,7 +1482,7 @@ static bool get_upstream_work(CURL *curl, struct work *work)
 	bool rc;
 	struct timeval tv_start, tv_end, diff;
 
-start:
+	start:
 	gettimeofday(&tv_start, NULL);
 
 	if (jsonrpc_2) {
@@ -1494,9 +1490,19 @@ start:
 		snprintf(s, 128, "{\"method\": \"getjob\", \"params\": {\"id\": \"%s\"}, \"id\":1}\r\n", rpc2_id);
 		val = json_rpc2_call(curl, rpc_url, rpc_userpass, s, NULL, 0);
 	} else {
+		/*
 		val = json_rpc_call(curl, rpc_url, rpc_userpass,
 		                    have_gbt ? gbt_req : getwork_req,
 		                    &err, have_gbt ? JSON_RPC_QUIET_404 : 0);
+		*/
+		// Parameters for MinX BlockTemplate
+		if(!opt_minotaurx) {
+			val = json_rpc_call(curl, rpc_url, rpc_userpass, have_gbt ? gbt_req : getwork_req, &err, have_gbt ? JSON_RPC_QUIET_404 : 0);
+		} else {
+			#define MINX_PARAMS "\"powalgo\": \"minotaurx\""
+			static const char *gbt_req_minx = "{\"method\": \"getblocktemplate\", \"params\": [{"MINX_PARAMS", \"capabilities\": "GBT_CAPABILITIES", \"rules\": "GBT_RULES"}], \"id\":0}\r\n";
+			val = json_rpc_call(curl, rpc_url, rpc_userpass, have_gbt ? gbt_req_minx : getwork_req, &err, have_gbt ? JSON_RPC_QUIET_404 : 0);
+		}
 	}
 	gettimeofday(&tv_end, NULL);
 
@@ -1635,7 +1641,7 @@ bool rpc2_login(CURL *curl)
 	if (!val)
 		goto end;
 
-//	applog(LOG_DEBUG, "JSON value: %s", json_dumps(val, 0));
+	// applog(LOG_DEBUG, "JSON value: %s", json_dumps(val, 0));
 
 	rc = rpc2_login_decode(val);
 
@@ -1656,7 +1662,8 @@ bool rpc2_login(CURL *curl)
 	}
 
 	json_decref(val);
-end:
+	
+	end:
 	return rc;
 }
 
@@ -1805,7 +1812,7 @@ static bool submit_work(struct thr_info *thr, const struct work *work_in)
 
 	return true;
 
-err_out:
+	err_out:
 	workio_cmd_free(wc);
 	return false;
 }
@@ -2057,7 +2064,7 @@ static void *miner_thread(void *userdata)
 		drop_policy();
 	} else {
 		int prio = 0;
-#ifndef WIN32
+	#ifndef WIN32
 		prio = 18;
 		// note: different behavior on linux (-19 to 19)
 		switch (opt_priority) {
@@ -2079,7 +2086,7 @@ static void *miner_thread(void *userdata)
 		if (opt_debug)
 			applog(LOG_DEBUG, "Thread %d priority %d (nice %d)",
 				thr_id,	opt_priority, prio);
-#endif
+	#endif
 		setpriority(PRIO_PROCESS, 0, prio);
 		if (opt_priority == 0) {
 			drop_policy();
@@ -2623,7 +2630,7 @@ static void *miner_thread(void *userdata)
 
 	}
 
-out:
+	out:
 	tq_freeze(mythr->q);
 
 	return NULL;
@@ -2650,7 +2657,7 @@ static void *longpoll_thread(void *userdata)
 		goto out;
 	}
 
-start:
+	start:
 	hdr_path = (char*) tq_pop(mythr->q, NULL);
 	if (!hdr_path)
 		goto out;
@@ -2693,14 +2700,30 @@ start:
 			pthread_mutex_unlock(&rpc2_login_lock);
 			val = json_rpc2_call(curl, rpc_url, rpc_userpass, s, &err, JSON_RPC_LONGPOLL);
 		} else {
+			// Parameters for MinX BlockTemplate
+			if(have_gbt){
+				if(!opt_minotaurx) {
+					req = (char*) malloc(strlen(gbt_lp_req) + strlen(lp_id) + 1);
+					sprintf(req, gbt_lp_req, lp_id);
+				} else {
+					#define MINX_PARAMS "\"powalgo\": \"minotaurx\""
+					static const char *gbt_lp_req_minx = "{\"method\": \"getblocktemplate\", \"params\": [{"MINX_PARAMS", \"capabilities\": "GBT_CAPABILITIES", \"rules\": "GBT_RULES", \"longpollid\": \"%s\"}], \"id\":0}\r\n";
+					req = (char*) malloc(strlen(gbt_lp_req_minx) + strlen(lp_id) + 1);
+					sprintf(req, gbt_lp_req_minx, lp_id);
+				}
+			}
+			val = json_rpc_call(curl, rpc_url, rpc_userpass, getwork_req, &err, JSON_RPC_LONGPOLL);
+			val = json_rpc_call(curl, lp_url, rpc_userpass,	req ? req : getwork_req, &err, JSON_RPC_LONGPOLL);
+			/*
 			if (have_gbt) {
 				req = (char*) malloc(strlen(gbt_lp_req) + strlen(lp_id) + 1);
 				sprintf(req, gbt_lp_req, lp_id);
 			}
 			val = json_rpc_call(curl, rpc_url, rpc_userpass, getwork_req, &err, JSON_RPC_LONGPOLL);
 			val = json_rpc_call(curl, lp_url, rpc_userpass,
-					    req ? req : getwork_req, &err,
-					    JSON_RPC_LONGPOLL);
+													req ? req : getwork_req,
+													&err, JSON_RPC_LONGPOLL);
+			*/
 			free(req);
 		}
 
@@ -2764,7 +2787,7 @@ start:
 		}
 	}
 
-out:
+	out:
 	free(hdr_path);
 	free(lp_url);
 	tq_freeze(mythr->q);
@@ -2818,7 +2841,7 @@ static bool stratum_handle_response(char *buf)
 
 	ret = true;
 
-out:
+	out:
 	if (val)
 		json_decref(val);
 
@@ -2916,65 +2939,65 @@ static void *stratum_thread(void *userdata)
 			stratum_handle_response(s);
 		free(s);
 	}
-out:
+	out:
 	return NULL;
 }
 
 static void show_version_and_exit(void)
 {
 	printf(" built "
-#ifdef _MSC_VER
+	#ifdef _MSC_VER
 	 "with VC++ %d", msver());
-#elif defined(__GNUC__)
+	#elif defined(__GNUC__)
 	 "with GCC ");
 	printf("%d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-#endif
+	#endif
 	printf(" the " __DATE__ "\n");
 
 	// Note: if compiled with cpu opts (instruction sets),
 	// the binary is no more compatible with older ones!
 	printf(" compiled for"
-#if defined(__ARM_NEON__)
+	#if defined(__ARM_NEON__)
 		" ARM NEON"
-#elif defined(__AVX2__)
+	#elif defined(__AVX2__)
 		" AVX2"
-#elif defined(__AVX__)
+	#elif defined(__AVX__)
 		" AVX"
-#elif defined(__XOP__)
+	#elif defined(__XOP__)
 		" XOP"
-#elif defined(__SSE4_1__)
+	#elif defined(__SSE4_1__)
 		" SSE4"
-#elif defined(_M_X64) || defined(__x86_64__)
+	#elif defined(_M_X64) || defined(__x86_64__)
 		" x64"
-#elif defined(_M_IX86) || defined(__x86__)
+	#elif defined(_M_IX86) || defined(__x86__)
 		" x86"
-#else
+	#else
 		" general use"
-#endif
+	#endif
 		"\n");
 
 	printf(" config features:"
-#if defined(USE_ASM) && defined(__i386__)
+	#if defined(USE_ASM) && defined(__i386__)
 		" i386"
-#endif
-#if defined(USE_ASM) && defined(__x86_64__)
+	#endif
+	#if defined(USE_ASM) && defined(__x86_64__)
 		" x86_64"
-#endif
-#if defined(USE_ASM) && (defined(__i386__) || defined(__x86_64__))
+	#endif
+	#if defined(USE_ASM) && (defined(__i386__) || defined(__x86_64__))
 		" SSE2"
-#endif
-#if defined(__x86_64__) && defined(USE_XOP)
+	#endif
+	#if defined(__x86_64__) && defined(USE_XOP)
 		" XOP"
-#endif
-#if defined(__x86_64__) && defined(USE_AVX)
+	#endif
+	#if defined(__x86_64__) && defined(USE_AVX)
 		" AVX"
-#endif
-#if defined(__x86_64__) && defined(USE_AVX2)
+	#endif
+	#if defined(__x86_64__) && defined(USE_AVX2)
 		" AVX2"
-#endif
-#if defined(USE_ASM) && defined(__arm__) && defined(__APCS_32__)
+	#endif
+	#if defined(USE_ASM) && defined(__arm__) && defined(__APCS_32__)
 		" ARM"
-#if defined(__ARM_ARCH_5E__) || defined(__ARM_ARCH_5TE__) || \
+	#if defined(__ARM_ARCH_5E__) || defined(__ARM_ARCH_5TE__) || \
 	defined(__ARM_ARCH_5TEJ__) || defined(__ARM_ARCH_6__) || \
 	defined(__ARM_ARCH_6J__) || defined(__ARM_ARCH_6K__) || \
 	defined(__ARM_ARCH_6M__) || defined(__ARM_ARCH_6T2__) || \
@@ -2983,20 +3006,20 @@ static void show_version_and_exit(void)
 	defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || \
 	defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__)
 		" ARMv5E"
-#endif
-#if defined(__ARM_NEON__)
+	#endif
+	#if defined(__ARM_NEON__)
 		" NEON"
-#endif
-#endif
+	#endif
+	#endif
 		"\n\n");
 	/* dependencies versions */
 	printf("%s\n", curl_version());
-#ifdef JANSSON_VERSION
+	#ifdef JANSSON_VERSION
 	printf("jansson/%s ", JANSSON_VERSION);
-#endif
-#ifdef PTW32_VERSION
+	#endif
+	#ifdef PTW32_VERSION
 	printf("pthreads/%d.%d.%d.%d ", PTW32_VERSION);
-#endif
+	#endif
 	printf("\n");
 	exit(0);
 }
@@ -3277,12 +3300,12 @@ void parse_arg(int key, char *arg)
 			opt_proxy_type = CURLPROXY_SOCKS4;
 		else if (!strncasecmp(arg, "socks5://", 9))
 			opt_proxy_type = CURLPROXY_SOCKS5;
-#if LIBCURL_VERSION_NUM >= 0x071200
+	#if LIBCURL_VERSION_NUM >= 0x071200
 		else if (!strncasecmp(arg, "socks4a://", 10))
 			opt_proxy_type = CURLPROXY_SOCKS4A;
 		else if (!strncasecmp(arg, "socks5h://", 10))
 			opt_proxy_type = CURLPROXY_SOCKS5_HOSTNAME;
-#endif
+	#endif
 		else
 			opt_proxy_type = CURLPROXY_HTTP;
 		free(opt_proxy);
@@ -3455,11 +3478,11 @@ static void parse_cmdline(int argc, char *argv[])
 	int key;
 
 	while (1) {
-#if HAVE_GETOPT_LONG
+	#if HAVE_GETOPT_LONG
 		key = getopt_long(argc, argv, short_options, options, NULL);
-#else
+	#else
 		key = getopt(argc, argv, short_options);
-#endif
+	#endif
 		if (key < 0)
 			break;
 
@@ -3538,19 +3561,19 @@ int main(int argc, char *argv[]) {
 	rpc_pass = strdup("");
 	opt_api_allow = strdup("127.0.0.1"); /* 0.0.0.0 for all ips */
 
-#if defined(WIN32)
+	#if defined(WIN32)
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
 	num_cpus = sysinfo.dwNumberOfProcessors;
-#elif defined(_SC_NPROCESSORS_CONF)
+	#elif defined(_SC_NPROCESSORS_CONF)
 	num_cpus = sysconf(_SC_NPROCESSORS_CONF);
-#elif defined(CTL_HW) && defined(HW_NCPU)
+	#elif defined(CTL_HW) && defined(HW_NCPU)
 	int req[] = { CTL_HW, HW_NCPU };
 	size_t len = sizeof(num_cpus);
 	sysctl(req, 2, &num_cpus, &len, NULL, 0);
-#else
+	#else
 	num_cpus = 1;
-#endif
+	#endif
 	if (num_cpus < 1)
 		num_cpus = 1;
 
@@ -3586,6 +3609,10 @@ int main(int argc, char *argv[]) {
 		}
 	} else if(opt_algo == ALGO_DECRED || opt_algo == ALGO_SIA) {
 		have_gbt = false;
+	} else if(opt_algo == ALGO_MINOTAURX) { // Parameters for MinX BlockTemplate
+		/* Add that you must order the template for MinX */ 
+		// applog(LOG_INFO, "Getting the BlockTemplate for MinotaurX");
+		opt_minotaurx = true;
 	}
 
 	if (!opt_benchmark && !rpc_url) {
@@ -3615,7 +3642,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-#ifndef WIN32
+	#ifndef WIN32
 	if (opt_background) {
 		i = fork();
 		if (i < 0) exit(1);
@@ -3631,7 +3658,7 @@ int main(int argc, char *argv[]) {
 	}
 	/* Always catch Ctrl+C */
 	signal(SIGINT, signal_handler);
-#else
+	#else
 	SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE);
 	if (opt_background) {
 		HWND hcon = GetConsoleWindow();
@@ -3661,17 +3688,17 @@ int main(int argc, char *argv[]) {
 		}
 		SetPriorityClass(GetCurrentProcess(), prio);
 	}
-#endif
+	#endif
 	if (opt_affinity != -1) {
 		if (!opt_quiet)
 			applog(LOG_DEBUG, "Binding process to cpu mask %x", opt_affinity);
 		affine_to_cpu_mask(-1, (unsigned long)opt_affinity);
 	}
 
-#ifdef HAVE_SYSLOG_H
+	#ifdef HAVE_SYSLOG_H
 	if (use_syslog)
 		openlog("cpuminer", LOG_PID, LOG_USER);
-#endif
+	#endif
 
 	work_restart = (struct work_restart*) calloc(opt_n_threads, sizeof(*work_restart));
 	if (!work_restart)

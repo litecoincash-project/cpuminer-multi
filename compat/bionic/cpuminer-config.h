@@ -92,7 +92,7 @@
 #define PACKAGE_TARNAME "cpuminer-multi"
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL "http://github.com/tpruvot/cpuminer-multi"
+#define PACKAGE_URL "http://github.com/litecoincash-project/cpuminer-multi"
 
 /* Define to the version of this package. */
 #define PACKAGE_VERSION VERSION
